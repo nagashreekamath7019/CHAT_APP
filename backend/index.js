@@ -7,8 +7,16 @@ import userRouter from "./rout/userRout.js";
 import cookieParser from "cookie-parser";
 import path from "path";
 import { app, server } from './Socket/socket.js';
+import cors from 'cors';
 
 dotenv.config();
+
+// 2. Add this block BEFORE your routes
+app.use(cors({
+    origin: "https://chatternode.onrender.com",
+    credentials: true,
+    methods: ["GET", "POST", "PUT", "DELETE"]
+}));
 
 app.use(express.json());
 app.use(cookieParser());
