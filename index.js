@@ -23,13 +23,12 @@ app.use(`/api/user`, userRouter)
 
 app.use(express.static(path.join(__dirname, "/frontend/dist")))
 
-// Simplified catch-all for Koyeb to serve the frontend
-app.get("/*path", (req, res) => {
+app.get(/^\/(?!api).*/, (req, res) => {
     res.sendFile(path.join(__dirname, "frontend", "dist", "index.html"))
 })
 
 
-const PORT = process.env.PORT || 8080
+const PORT = process.env.PORT || 3000
 
 server.listen(PORT, () => {
     dbConnect();
