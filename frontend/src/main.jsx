@@ -6,6 +6,11 @@ import ReactDOM from 'react-dom/client'
 import { BrowserRouter } from 'react-router-dom'
 import { AuthContextProvider } from './context/AuthContext.jsx'
 import { SocketContextProvider } from './context/socketContext.jsx'
+import axios from 'axios';
+
+axios.defaults.baseURL = import.meta.env.VITE_API_URL;
+axios.defaults.withCredentials = true; // This is vital for your cookies to work!
+
 createRoot(document.getElementById('root')).render(
   <BrowserRouter>
     <AuthContextProvider>
