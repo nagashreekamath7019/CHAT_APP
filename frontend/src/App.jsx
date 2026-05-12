@@ -4,7 +4,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { Route, Routes } from "react-router-dom";
 import Register from "./register/Register.jsx";
 import Home from "./home/Home.jsx";
-import { VerifyUser } from "./utils/verifyUser.jsx";
+import { VerifyUser } from "./utils/VerifyUser.jsx";
 import Profile from "./home/components/Profile.jsx";
 
 
