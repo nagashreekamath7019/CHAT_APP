@@ -39,7 +39,7 @@ const Sidebar = ({ onSelectUser }) => {
             if (!senderId) return;
 
             setChatUser((prevChatters) => {
-                const existingUserIndex = prevChatters.findIndex(user => user._id === senderId);
+                const existingUserIndex = prevChatters.findIndex(user => user?._id === senderId);
                 let updatedList = [...prevChatters];
 
                 if (existingUserIndex !== -1) {
@@ -52,7 +52,7 @@ const Sidebar = ({ onSelectUser }) => {
                             const res = await axios.get(`/api/user/${senderId}`);
                             if (res.data) {
                                 setChatUser(prev => {
-                                    if (prev.some(u => u._id === senderId)) return prev;
+                                    if (prev.some(u => u?._id === senderId)) return prev;
                                     return [res.data, ...prev];
                                 });
                             }
@@ -102,17 +102,15 @@ const Sidebar = ({ onSelectUser }) => {
             const search = await axios.get(`/api/user/search?search=${searchInput}`);
             setSearchUser(search.data || []);
         } catch (error) {
-            setSearchUser([]); // Ensure list is empty on error
+            setSearchUser([]); 
             toast.error("User not found");
         } finally {
             setLoading(false);
         }
     };
 
-   
-
     const handleLocalClear = (userId) => {
-        setChatUser(prev => prev.filter(u => u._id !== userId));
+        setChatUser(prev => prev.filter(u => u?._id !== userId));
         if (selectedConversation?._id === userId) {
             setSelectedConversation(null);
             setMessages([]);
@@ -138,10 +136,12 @@ const Sidebar = ({ onSelectUser }) => {
     };
 
     const UserListItem = ({ user }) => {
-        const isOnline = onlineUsers?.includes(user._id);
-        const count = unreadMessages[user._id] || 0;
-        const isSelected = selectedConversation?._id === user._id;
+        const isOnline = onlineUsers?.includes(user?._id);
+        const count = unreadMessages[user?._id] || 0;
+        const isSelected = selectedConversation?._id === user?._id;
         const [showMenu, setShowMenu] = useState(false);
+
+        if (!user) return null;
 
         return (
             <div className='relative group'>
@@ -180,7 +180,6 @@ const Sidebar = ({ onSelectUser }) => {
                         >
                             <RiChatDeleteFill size={18} /> Clear from View
                         </button>
-                    
                     </div>
                 )}
             </div>
@@ -234,23 +233,25 @@ const Sidebar = ({ onSelectUser }) => {
                     <div className='flex justify-center mt-10'><span className="loading loading-spinner text-sky-500"></span></div>
                 ) : (
                     <div className='w-full'>
-                        {/* SEARCH RESULTS LOGIC */}
                         {isSearching ? (
                             searchUser.length > 0 ? (
-                                searchUser.map((user) => <UserListItem key={user._id} user={user} />)
+                                searchUser
+                                    .filter(user => user !== null)
+                                    .map((user) => <UserListItem key={user._id} user={user} />)
                             ) : (
                                 <div className='flex flex-col items-center justify-center mt-10 opacity-60'>
                                     <p className='text-red-800 font-semibold'>User not found!</p>
                                 </div>
                             )
                         ) : (
-                            /* NORMAL CHAT LIST LOGIC */
-                            chatUser.map((user, index) => (
-                                <React.Fragment key={user._id}>
-                                    <UserListItem user={user} />
-                                    {index < chatUser.length - 1 && <div className='divider px-2 my-1 opacity-50' />}
-                                </React.Fragment>
-                            ))
+                            chatUser && chatUser
+                                .filter(user => user !== null)
+                                .map((user, index) => (
+                                    <React.Fragment key={user._id}>
+                                        <UserListItem user={user} />
+                                        {index < chatUser.length - 1 && <div className='divider px-2 my-1 opacity-50' />}
+                                    </React.Fragment>
+                                ))
                         )}
                     </div>
                 )}
