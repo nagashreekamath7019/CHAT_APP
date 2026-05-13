@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { RiUserSearchLine } from "react-icons/ri";
+import { RiUserSearchLine, RiDeleteBin6Line } from "react-icons/ri";
 import { IoArrowBackCircle, IoEllipsisVertical } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
 import { RiChatDeleteFill } from "react-icons/ri";
@@ -99,16 +99,13 @@ const Sidebar = ({ onSelectUser }) => {
         setLoading(true);
         setIsSearching(true);
         try {
-            const search = await axios.get(`/api/user/search?search=${searchInput}`, {
+            const search = await axios.get(`/api/user/search?search=${searchInput}`,{
                 withCredentials: true
             });
             setSearchUser(search.data || []);
-            if (search.data.length === 0) {
-                toast.error("User not found");
-            }
         } catch (error) {
             setSearchUser([]); 
-            toast.error("Error searching for users");
+            toast.error("User not found");
         } finally {
             setLoading(false);
         }
@@ -132,9 +129,7 @@ const Sidebar = ({ onSelectUser }) => {
                 localStorage.removeItem('chat_app');
                 setAuthUser(null);
                 navigate('/login');
-                toast.success("Logged out successfully");
             } catch (error) {
-                toast.error("Logout failed");
                 console.error(error);
             } finally {
                 setLoading(false);
@@ -266,7 +261,7 @@ const Sidebar = ({ onSelectUser }) => {
 
             {!isSearching && (
                 <div className='mt-auto p-3 flex items-center gap-2 border-t border-gray-200/50'>
-                    <button onClick={handleLogOut} className='flex items-center justify-center bg-gray-800 hover:bg-black w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
+                    <button onClick={handleLogOut} className='flex items-center justify-center bg-gray-800 hover:bg-red-600 w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
                         <BiLogOutCircle size={24} />
                     </button>
                     <p className='text-sm font-medium text-gray-700'>Logout</p>
