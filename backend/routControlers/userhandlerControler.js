@@ -10,8 +10,8 @@ export const getUserBySearch = async (req, res) => {
             $and: [
                 {
                     $or: [
-                        { username: { $regex: '.*' + search + '.*', $options: "i" } },
-                        { fullname: { $regex: '.*' + search + '.*', $options: "i" } }
+                        { username: { $regex: search, $options: "i" } },
+                        { fullname: { $regex: search, $options: "i" } }
                     ]
                 }, {
                     _id: { $ne: currentUserID }
@@ -45,13 +45,13 @@ export const getCurrentChatters = async (req, res) => {
         if (!currentChatters || currentChatters.length === 0) return res.status(200).send([]);
 
         const participantsIDS = currentChatters.reduce((ids, conversation) => {
-            
+
             const otherParticipants = conversation.participants.filter(id => id.toString() !== currentUserID.toString());
             return [...ids, ...otherParticipants]
         }, []);
 
         const otherParticipantsIDS = participantsIDS.filter(id => id.toString() !== currentUserID.toString());
-        
+
         const user = await User.find({ _id: { $in: otherParticipantsIDS } }).select("-password").select("-email");
 
         const users = otherParticipantsIDS.map(id => user.find(user => user._id.toString() === id.toString()));
