@@ -99,7 +99,9 @@ const Sidebar = ({ onSelectUser }) => {
         setLoading(true);
         setIsSearching(true);
         try {
-            const search = await axios.get(`/api/user/search?search=${searchInput}`);
+            const search = await axios.get(`/api/user/search?search=${searchInput}`,{
+                withCredentials: true
+            });
             setSearchUser(search.data || []);
         } catch (error) {
             setSearchUser([]); 
