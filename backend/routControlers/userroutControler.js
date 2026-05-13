@@ -160,3 +160,22 @@ export const updateGender = async (req, res) => {
         res.status(500).json({ error: "Internal server error" });
     }
 };
+
+export const signup = async (req, res) => {
+    try {
+        const { username, email } = req.body;
+
+        // Check for existing user
+        const existingUser = await User.findOne({ $or: [{ username }, { email }] });
+        
+        if (existingUser) {
+            // This 400 status triggers the 'toast.error' on the frontend
+            return res.status(400).json({ error: "Username or email already exists" });
+        }
+
+        // ... save new user logic ...
+        res.status(201).json({ message: "User created successfully" });
+    } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

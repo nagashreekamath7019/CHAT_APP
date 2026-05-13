@@ -9,7 +9,7 @@ import { FaEyeSlash } from "react-icons/fa";
 
 const Register = () => {
     const navigate = useNavigate();
-    const {setAuthUser} = useAuth();
+    const { setAuthUser } = useAuth();
     const [loading, setLoading] = useState(false);
     const [inputData, setInputData] = useState({})
     const handleInput = (e) => {
@@ -33,22 +33,27 @@ const Register = () => {
             return toast.error("Password doesn't match");
         }
         try {
-            const register = await axios.post(`/api/auth/register`, inputData);
+            const register = await axios.post('/api/auth/register', inputData);
             const data = register.data;
-            if (data.success === false) {
+
+            // Check for successful status (201 Created)
+            if (register.status === 201) {
+                toast.success("Registered successfully!");
+                localStorage.setItem('chat_app', JSON.stringify(data));
+                setAuthUser(data);
                 setLoading(false);
-                toast.error(data.message);
-                console.log(data.message);
+                navigate('/login');
             }
-            toast.success(data?.message)
-            localStorage.setItem('chat_app', JSON.stringify(data));
-            setAuthUser(data)
-            setLoading(false)
-            navigate('/login');
         } catch (error) {
             setLoading(false);
+            // This correctly handles the 400 error from the backend
+            if (error.response && error.response.status === 400) {
+                toast.error("Account already exists! Please login.");
+            } else {
+                // This triggers for any other registration failure
+                toast.error(error.response?.data?.error || "Registration failed!");
+            }
             console.log(error);
-            toast.error(error.response?.data?.message);
         }
     }
     const [showPassword, setShowPassword] = useState(false);
