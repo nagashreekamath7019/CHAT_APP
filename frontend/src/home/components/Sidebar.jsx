@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { RiUserSearchLine } from "react-icons/ri";
-import { IoArrowBackCircle, IoEllipsisVertical, IoMdClose } from "react-icons/io5";
+import { IoArrowBackCircle, IoEllipsisVertical } from "react-icons/io5";
+import { IoMdClose } from "react-icons/io";
 import { RiChatDeleteFill } from "react-icons/ri";
 import axios from 'axios';
 import { toast } from 'react-toastify';
