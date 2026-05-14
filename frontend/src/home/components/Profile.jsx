@@ -19,6 +19,7 @@ const Profile = () => {
     const [newFullname, setNewFullname] = useState(authUser?.fullname || "");
     const [newGender, setNewGender] = useState(authUser?.gender || "male");
     const [loading, setLoading] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Added for logout modal
 
     const handleUpdateProfile = async (field) => {
         let value;
@@ -121,7 +122,7 @@ const Profile = () => {
                         )}
                     </div>
 
-                    {/* GENDER BOX (The "Old User" Fix) */}
+                    {/* GENDER BOX */}
                     <div className='w-full mt-6'>
                         <div className='bg-gray-50 p-4 rounded-2xl border border-gray-100'>
                             <p className='text-xs text-gray-500 uppercase font-bold mb-1'>Gender</p>
@@ -148,17 +149,15 @@ const Profile = () => {
                         </div>
                     </div>
 
-                    {!isSearching && (
-                        <div className='mt-auto p-3 flex items-center gap-2 border-t border-gray-200/50'>
-                            {/* Trigger the Modal instead of direct logout */}
-                            <button onClick={() => setIsModalOpen(true)} className='flex items-center justify-center bg-gray-800 hover:bg-black w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
-                                <BiLogOutCircle size={24} />
-                            </button>
-                            <p className='text-sm font-medium text-gray-700'>Logout</p>
-                        </div>
-                    )}
+                    <div className='w-full mt-6 p-3 flex items-center gap-2 border-t border-gray-200/50'>
+                        {/* Trigger the Modal instead of direct logout */}
+                        <button onClick={() => setIsModalOpen(true)} className='flex items-center justify-center bg-gray-800 hover:bg-black w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
+                            <BiLogOutCircle size={24} />
+                        </button>
+                        <p className='text-sm font-medium text-gray-700'>Logout</p>
+                    </div>
 
-                    {/* Logout Confirmation Modal Added */}
+                    {/* Logout Confirmation Modal */}
                     {isModalOpen && (
                         <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4'>
                             <div className='bg-white p-6 rounded-3xl shadow-2xl text-center max-w-sm w-full'>
