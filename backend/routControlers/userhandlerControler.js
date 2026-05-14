@@ -1,5 +1,5 @@
 import mongoose from "mongoose";
-import User from "../Models/userModels.js";
+import User from "../Models/userModels.js"
 import Conversation from "../Models/conversationModels.js";
 
 export const getUserBySearch = async (req, res) => {
