@@ -65,4 +65,21 @@ export const getCurrentChatters = async (req, res) => {
         });
         console.log(error);
     }
-}
+};
+
+export const getUserProfile = async (req, res) => {
+    try {
+        // req.user was set by the protectRoute middleware
+        const user = req.user;
+
+        if (!user) {
+            return res.status(404).json({ error: "User not found" });
+        }
+
+        // Send the user data back to the frontend
+        res.status(200).json(user);
+    } catch (error) {
+        console.log("Error in getUserProfile controller: ", error.message);
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};

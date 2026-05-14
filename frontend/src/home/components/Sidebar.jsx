@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'; // Added useState to imports
 import { RiUserSearchLine } from "react-icons/ri";
 import { IoArrowBackCircle, IoEllipsisVertical } from "react-icons/io5";
 import { IoMdClose } from "react-icons/io";
@@ -21,6 +21,7 @@ const Sidebar = ({ onSelectUser }) => {
     const [chatUser, setChatUser] = useState([]);
     const [loading, setLoading] = useState(false);
     const [isSearching, setIsSearching] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false); // Modal state added
 
     const { 
         setSelectedConversation, 
@@ -123,22 +124,21 @@ const Sidebar = ({ onSelectUser }) => {
         toast.info("Chat removed from view.");
     };
 
+    // Updated Logout Function to match Profile.jsx
     const handleLogOut = async () => {
-        const confirmlogout = window.prompt("Type your username to LOGOUT");
-        if (confirmlogout === authUser?.username) {
-            setLoading(true);
-            try {
-                await axios.post(`/api/auth/logout`);
-                localStorage.removeItem('chat_app');
-                setAuthUser(null);
-                navigate('/login');
-                toast.success("Logged out successfully");
-            } catch (error) {
-                toast.error("Logout failed");
-                console.error(error);
-            } finally {
-                setLoading(false);
-            }
+        setLoading(true);
+        try {
+            await axios.post(`/api/auth/logout`);
+            localStorage.removeItem('chat_app');
+            setAuthUser(null);
+            navigate('/login');
+            toast.success("Logged out successfully");
+        } catch (error) {
+            toast.error("Logout failed");
+            console.error(error);
+        } finally {
+            setLoading(false);
+            setIsModalOpen(false);
         }
     };
 
@@ -266,10 +266,35 @@ const Sidebar = ({ onSelectUser }) => {
 
             {!isSearching && (
                 <div className='mt-auto p-3 flex items-center gap-2 border-t border-gray-200/50'>
-                    <button onClick={handleLogOut} className='flex items-center justify-center bg-gray-800 hover:bg-black w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
+                    {/* Trigger the Modal instead of direct logout */}
+                    <button onClick={() => setIsModalOpen(true)} className='flex items-center justify-center bg-gray-800 hover:bg-black w-10 h-10 rounded-full cursor-pointer text-white transition-all shadow-md'>
                         <BiLogOutCircle size={24} />
                     </button>
                     <p className='text-sm font-medium text-gray-700'>Logout</p>
+                </div>
+            )}
+
+            {/* Logout Confirmation Modal Added */}
+            {isModalOpen && (
+                <div className='fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-100 p-4'>
+                    <div className='bg-white p-6 rounded-3xl shadow-2xl text-center max-w-sm w-full'>
+                        <h2 className='text-xl font-bold mb-4 text-gray-800'>Confirm Logout</h2>
+                        <p className='text-gray-600 mb-6 text-sm'>Are you sure you want to end your session on ChatterNode?</p>
+                        <div className='flex justify-center gap-3'>
+                            <button 
+                                onClick={() => setIsModalOpen(false)}
+                                className='flex-1 px-4 py-3 bg-gray-100 text-gray-700 font-bold rounded-2xl hover:bg-gray-200 transition-colors text-sm'
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleLogOut}
+                                className='flex-1 px-4 py-3 bg-red-500 text-white font-bold rounded-2xl hover:bg-red-600 transition-colors shadow-lg shadow-red-200 text-sm'
+                            >
+                                {loading ? <span className="loading loading-spinner loading-xs"></span> : "Logout"}
+                            </button>
+                        </div>
+                    </div>
                 </div>
             )}
         </div>
