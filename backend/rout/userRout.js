@@ -3,7 +3,7 @@ import isLogin from "../middleware/isLogin.js";
 import { getCurrentChatters, getUserBySearch, getUserProfile } from "../routControlers/userhandlerControler.js";
 import { updateUsername, updateFullname, updateGender } from "../routControlers/userroutControler.js";
 import protectRoute from "../middleware/protectRoute.js";
-
+import { updateProfilePic } from "../routControlers/userroutControler.js";
 
 const router = express.Router();
 
@@ -16,6 +16,8 @@ router.post("/update-username", updateUsername);
 router.post("/update-fullname", updateFullname);
 
 router.post("/update-gender", updateGender);
+
+router.post("/update-profilepic", protectRoute, updateProfilePic)
 
 router.get("/profile", protectRoute, getUserProfile);
 

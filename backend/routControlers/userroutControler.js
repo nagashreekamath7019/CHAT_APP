@@ -1,6 +1,7 @@
 import User from "../Models/userModels.js"
 import bcryptjs from 'bcryptjs'
 import jwtwebToken from '../utils/jwtwebToken.js'
+import { v2 as cloudinary } from "cloudinary";
 
 export const userRegister = async (req, res) => {
     try {
@@ -149,8 +150,8 @@ export const updateGender = async (req, res) => {
         if (!gender) return res.status(400).json({ error: "Gender is required" });
 
         const updatedUser = await User.findByIdAndUpdate(
-            userId, 
-            { gender }, 
+            userId,
+            { gender },
             { new: true }
         ).select("-password");
 
@@ -167,7 +168,7 @@ export const signup = async (req, res) => {
 
         // Check for existing user
         const existingUser = await User.findOne({ $or: [{ username }, { email }] });
-        
+
         if (existingUser) {
             // This 400 status triggers the 'toast.error' on the frontend
             return res.status(400).json({ error: "Username or email already exists" });
@@ -176,6 +177,37 @@ export const signup = async (req, res) => {
         // ... save new user logic ...
         res.status(201).json({ message: "User created successfully" });
     } catch (error) {
+        res.status(500).json({ error: "Internal Server Error" });
+    }
+};
+
+
+export const updateProfilePic = async (req, res) => {
+    try {
+        const { profilepic } = req.body;
+        const userId = req.user._id; // Get ID from the protectRoute middleware
+
+        if (profilepic.length > 700000) {
+            return res.status(400).json({ error: "Image data exceeds server limit(500KB) " });
+        }
+
+        // 1. Upload the image string to Cloudinary
+        const uploadResponse = await cloudinary.uploader.upload(profilepic);
+        const imageUrl = uploadResponse.secure_url;
+
+        // 2. Update the user's profilepic field in MongoDB
+        const updatedUser = await User.findByIdAndUpdate(
+            userId,
+            { profilepic: profilepic },
+            { new: true }
+        ).select("-password");
+        
+        if(!updatedUser) return res.status(404).json({ error: "User not found"}) 
+        
+
+        res.status(200).json(updatedUser);
+    } catch (error) {
+        console.log("Error updating profile pic!:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
