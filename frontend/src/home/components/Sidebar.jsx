@@ -10,6 +10,7 @@ import { useNavigate } from 'react-router-dom';
 import { BiLogOutCircle } from "react-icons/bi";
 import useConversation from '../../Zustand/useConversation.js';
 import { useSocketContext } from '../../context/socketContext.jsx';
+import Logo from '../../assets/logo.png';
 
 const Sidebar = ({ onSelectUser }) => {
     const navigate = useNavigate();
@@ -279,7 +280,7 @@ const Sidebar = ({ onSelectUser }) => {
                 <div className='fixed inset-0 flex items-center justify-center z-100 p-4'>
                     <div className='bg-white p-6 rounded-3xl shadow-2xl text-center max-w-sm w-full '>
                         <h2 className='text-xl font-bold mb-4 text-gray-800'>Confirm Logout</h2>
-                        <p className='text-gray-600 mb-6 text-sm'>Are you sure you want to end your session on ChatterNode?</p>
+                        <p className='text-gray-600 mb-6 text-sm'>Are you sure you want to Logout?</p>
                         <div className='flex justify-center gap-3'>
                             <button 
                                 onClick={() => setIsModalOpen(false)}
