@@ -1,7 +1,7 @@
 import User from "../Models/userModels.js"
 import bcryptjs from 'bcryptjs'
 import jwtwebToken from '../utils/jwtwebToken.js'
-import { v2 as cloudinary } from "cloudinary";
+
 
 export const userRegister = async (req, res) => {
     try {
@@ -185,29 +185,25 @@ export const signup = async (req, res) => {
 export const updateProfilePic = async (req, res) => {
     try {
         const { profilepic } = req.body;
-        const userId = req.user._id; // Get ID from the protectRoute middleware
+        const userId = req.user._id;
 
-        if (profilepic.length > 700000) {
-            return res.status(400).json({ error: "Image data exceeds server limit(500KB) " });
+        // Backend Safety Check: Calculate string size
+        // Base64 strings are ~33% larger than the actual file
+        if (profilepic.length > 700000) { 
+            return res.status(400).json({ error: "Image data exceeds server limit (500KB approx)" });
         }
 
-        // 1. Upload the image string to Cloudinary
-        const uploadResponse = await cloudinary.uploader.upload(profilepic);
-        const imageUrl = uploadResponse.secure_url;
-
-        // 2. Update the user's profilepic field in MongoDB
         const updatedUser = await User.findByIdAndUpdate(
             userId,
             { profilepic: profilepic },
             { new: true }
         ).select("-password");
-        
-        if(!updatedUser) return res.status(404).json({ error: "User not found"}) 
-        
+
+        if (!updatedUser) return res.status(404).json({ error: "User not found" });
 
         res.status(200).json(updatedUser);
     } catch (error) {
-        console.log("Error updating profile pic!:", error.message);
+        console.error("Error updating profile pic:", error.message);
         res.status(500).json({ error: "Internal Server Error" });
     }
 };
