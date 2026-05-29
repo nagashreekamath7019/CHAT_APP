@@ -28,7 +28,7 @@ const Register = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true)
-        if (inputData.password !== inputData.confpassword.toLowerCase()) {
+        if (inputData.password !== inputData.confpassword) {
             setLoading(false)
             return toast.error("Password doesn't match");
         }
