@@ -6,10 +6,8 @@ import jwtwebToken from '../utils/jwtwebToken.js'
 export const userRegister = async (req, res) => {
     try {
         const { fullname, username, email, gender, password, profilepic } = req.body;
-        const user = await User.findOne({
-            $or: [{ username }, { email }]
-        });
-        if (user) return res.status(400).send({ success: false, message: "Username or Email Already Exist!.. " })
+        const user = await User.findOne({ username });
+        if (user) return res.status(400).send({ success: false, message: "Username Already Exist!.. " })
         const hashPassword = bcryptjs.hashSync(password, 10);
         const profileBoy = profilepic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
         const profileGirl = profilepic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${username}`;
@@ -189,7 +187,7 @@ export const updateProfilePic = async (req, res) => {
 
         // Backend Safety Check: Calculate string size
         // Base64 strings are ~33% larger than the actual file
-        if (profilepic.length > 700000) { 
+        if (profilepic.length > 700000) {
             return res.status(400).json({ error: "Image data exceeds server limit (500KB approx)" });
         }
 
