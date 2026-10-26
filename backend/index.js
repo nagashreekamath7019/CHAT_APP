@@ -13,7 +13,7 @@ dotenv.config();
 
 // Allowed origins list
 const allowedOrigins = [
-  "http://localhost:5173",
+  "https://chatternode.onrender.com",
   "https://chatternode.onrender.com"
 ];
 

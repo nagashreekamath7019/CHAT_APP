@@ -14,7 +14,7 @@ export const SocketContextProvider = ({ children }) => {
     const { authUser } = useAuth();
 
     // Dynamically choose backend URL based on environment or fallback to localhost
-    const socketURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const socketURL = import.meta.env.VITE_BACKEND_URL || `https://chatter-node-backend.onrender.com`;
 
     useEffect(() => {
         if (authUser) {

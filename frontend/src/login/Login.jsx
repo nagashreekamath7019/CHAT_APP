@@ -29,7 +29,11 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      const login = await axios.post("http://localhost:3000/api/auth/login", userInput, { withCredentials: true})
+      const login = await axios.post(
+  "https://chatter-node-backend.onrender.com/api/auth/login",
+  userInput,
+  { withCredentials: true }
+);
       const data = login.data;
 
       if (data.success === false) {

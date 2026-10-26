@@ -33,7 +33,11 @@ const Register = () => {
             return toast.error("Password doesn't match");
         }
         try {
-            const register = await axios.post('http://localhost:3000/api/auth/register', inputData, {withCredentials: true});
+            const register = await axios.post(
+  "[https://chatter-node-backend.onrender.com/api/auth/register](https://chatter-node-backend.onrender.com/api/auth/register)",
+  inputData,
+  { withCredentials: true }
+);
             const data = register.data;
 
             // Check for successful status (201 Created)

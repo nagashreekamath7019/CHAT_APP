@@ -24,7 +24,7 @@ const Sidebar = ({ onSelectUser }) => {
     const [isSearching, setIsSearching] = useState(false);
     const [isModalOpen, setIsModalOpen] = useState(false);
 
-    const backendURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+    const backendURL = import.meta.env.VITE_BACKEND_URL || `https://chatter-node-backend.onrender.com`;
 
     const { 
         setSelectedConversation, 
