@@ -11,26 +11,37 @@ import cors from 'cors';
 
 dotenv.config();
 
-// 2. Add this block BEFORE your routes
+// Allowed origins list
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://chatternode.onrender.com"
+];
+
 app.use(cors({
-    origin: "https://chatternode.onrender.com",
-    credentials: true,
-    methods: ["GET", "POST", "PUT", "DELETE"]
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like Postman or mobile apps)
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true,
+  methods: ["GET", "POST", "PUT", "DELETE"]
 }));
 
-app.use(express.json());
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(cookieParser());
 
 // API Routes
 app.use(`/api/auth`, authRouter);
 app.use(`/api/message`, messageRouter);
 app.use(`/api/user`, userRouter);
-app.use(express.json({ limit: '1mb'}));
-app.use(express.urlencoded({ extended: true, limit: "1mb"}));
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-    dbConnect();
-    console.log(`Working at ${PORT}`);
+  dbConnect();
+  console.log(`Working at ${PORT}`);
 });

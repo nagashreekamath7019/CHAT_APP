@@ -1,85 +1,137 @@
 import mongoose from "mongoose";
-import User from "../Models/userModels.js"
+import User from "../Models/userModels.js";
 import Conversation from "../Models/conversationModels.js";
 
 export const getUserBySearch = async (req, res) => {
     try {
         const search = req.query.search || '';
-        const currentUserID = req.user._id;
-        const user = await User.find({
+        const rawUserId = req.user?._id || req.user;
+
+        if (!rawUserId) {
+            return res.status(401).json({ success: false, message: "User not authenticated" });
+        }
+
+        const currentUserID = new mongoose.Types.ObjectId(rawUserId.toString());
+
+        const users = await User.find({
             $and: [
                 {
                     $or: [
                         { username: { $regex: search, $options: "i" } },
                         { fullname: { $regex: search, $options: "i" } }
                     ]
-                }, {
+                },
+                {
                     _id: { $ne: currentUserID }
                 }
             ]
-        }).select("-password").select("email");
+        }).select("-password");
 
-        res.status(200).send(user)
-
+        return res.status(200).json(users);
 
     } catch (error) {
-        res.status(500).send({
+        console.error("Error in getUserBySearch:", error);
+        return res.status(500).json({
             success: false,
-            message: error
+            message: error.message || "Internal Server Error"
         });
-        console.log(error);
-
     }
-}
-
+};
 
 export const getCurrentChatters = async (req, res) => {
     try {
-        const currentUserID = req.user._id;
-        const currentChatters = await Conversation.find({
-            participants: currentUserID
-        }).sort({
-            updatedAt: -1
-        });
+        const rawUserId = req.user?._id || req.user;
 
-        if (!currentChatters || currentChatters.length === 0) return res.status(200).send([]);
+        if (!rawUserId) {
+            return res.status(401).json({ success: false, message: "User not authenticated" });
+        }
 
-        const participantsIDS = currentChatters.reduce((ids, conversation) => {
+        const currentUserID = new mongoose.Types.ObjectId(rawUserId.toString());
 
-            const otherParticipants = conversation.participants.filter(id => id.toString() !== currentUserID.toString());
-            return [...ids, ...otherParticipants]
-        }, []);
+        // 1. Find all conversations where current user is a participant
+        // Sort by updatedAt descending (latest activity at the top)
+        const conversations = await Conversation.find({
+            participants: { $in: [currentUserID] }
+        })
+        .populate("messages")
+        .sort({ updatedAt: -1 });
 
-        const otherParticipantsIDS = participantsIDS.filter(id => id.toString() !== currentUserID.toString());
+        if (!conversations || conversations.length === 0) {
+            return res.status(200).json([]);
+        }
 
-        const user = await User.find({ _id: { $in: otherParticipantsIDS } }).select("-password").select("-email");
+        // 2. Extract other participants preserving latest conversation order
+        const orderedParticipantIds = [];
+        const unreadCountMap = {};
 
-        const users = otherParticipantsIDS.map(id => user.find(user => user._id.toString() === id.toString()));
+        for (const conv of conversations) {
+            const otherParticipantId = conv.participants.find(
+                (p) => p && p.toString() !== currentUserID.toString()
+            );
 
-        res.status(200).send(users)
+            if (otherParticipantId) {
+                const idStr = otherParticipantId.toString();
+
+                if (!orderedParticipantIds.includes(idStr)) {
+                    orderedParticipantIds.push(idStr);
+
+                    // Safely compute unread messages sent by the other chatter
+                    const unread = (conv.messages || []).filter((msg) => {
+                        if (!msg || !msg.senderId) return false;
+                        const isFromOther = msg.senderId.toString() === idStr;
+                        const isUnseen = msg.seen === false || (msg.seen === undefined && !conv.seenBy?.includes(currentUserID));
+                        return isFromOther && isUnseen;
+                    }).length;
+
+                    unreadCountMap[idStr] = unread;
+                }
+            }
+        }
+
+        if (orderedParticipantIds.length === 0) {
+            return res.status(200).json([]);
+        }
+
+        // 3. Fetch all user records in one query
+        const objectIdsToFetch = orderedParticipantIds.map((id) => new mongoose.Types.ObjectId(id));
+        const users = await User.find({
+            _id: { $in: objectIdsToFetch }
+        }).select("-password");
+
+        // 4. Return users strictly preserving the conversation recency order
+        const orderedUsers = orderedParticipantIds
+            .map((id) => {
+                const foundUser = users.find((u) => u._id.toString() === id);
+                if (!foundUser) return null;
+
+                const userObj = foundUser.toObject();
+                userObj.unreadCount = unreadCountMap[id] || 0;
+                return userObj;
+            })
+            .filter(Boolean);
+
+        return res.status(200).json(orderedUsers);
 
     } catch (error) {
-        res.status(500).send({
+        console.error("Error in getCurrentChatters:", error);
+        return res.status(500).json({
             success: false,
-            message: error
+            message: error.message || "Internal Server Error"
         });
-        console.log(error);
     }
 };
 
 export const getUserProfile = async (req, res) => {
     try {
-        // req.user was set by the protectRoute middleware
         const user = req.user;
 
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
-        // Send the user data back to the frontend
-        res.status(200).json(user);
+        return res.status(200).json(user);
     } catch (error) {
-        console.log("Error in getUserProfile controller: ", error.message);
-        res.status(500).json({ error: "Internal Server Error" });
+        console.error("Error in getUserProfile controller:", error.message);
+        return res.status(500).json({ error: "Internal Server Error" });
     }
 };

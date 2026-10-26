@@ -16,14 +16,16 @@ const messageSchema = mongoose.Schema({
         type: String,
         required: true
     },
+    seen: {
+        type: Boolean,
+        default: false
+    },
     conversationId: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: "Conversation",
-        default: []
+        ref: "Conversation"
     }
-}, {timestamps: true })
+}, { timestamps: true });
 
+const Message = mongoose.model("Message", messageSchema);
 
-const Message = mongoose.model("Message",messageSchema)
-
-export default Message
+export default Message;

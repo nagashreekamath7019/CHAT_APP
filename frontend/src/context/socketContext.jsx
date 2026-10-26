@@ -10,16 +10,19 @@ export const useSocketContext = () => {
 
 export const SocketContextProvider = ({ children }) => {
     const [socket, setSocket] = useState(null);
-
     const [onlineUsers, setOnlineUsers] = useState([]);
     const { authUser } = useAuth();
 
+    // Dynamically choose backend URL based on environment or fallback to localhost
+    const socketURL = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
+
     useEffect(() => {
         if (authUser) {
-            const newSocket = io("https://chatter-node-backend.onrender.com", {
+            const newSocket = io(socketURL, {
                 query: {
                     userId: authUser?._id,
-                }
+                },
+                withCredentials: true,
             });
 
             setSocket(newSocket);

@@ -2,10 +2,10 @@ import jwt from "jsonwebtoken"
 
 const jwtwebToken = (userId, res) => {
     const token = jwt.sign({ userId }, process.env.JWT_SECRET, {
-        expiresIn: '30d'
+        expiresIn: '1825d'
     })
     res.cookie("jwt", token, {
-        maxAge: 30 * 24 * 60 * 60 * 1000,
+        maxAge: 5 * 365 * 24 * 60 * 60 * 1000,
         httpOnly: true,
         sameSite: "none",
         secure: true
